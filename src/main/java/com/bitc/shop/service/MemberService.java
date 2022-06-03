@@ -4,6 +4,10 @@ import com.bitc.shop.entity.Member;
 import com.bitc.shop.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.boot.model.naming.IllegalIdentifierException;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class MemberService {
+public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
 
@@ -30,5 +34,25 @@ public class MemberService {
         if (findMember != null) {
             throw new IllegalStateException("이미 가입된 회원입니다.");
         }
+    }
+
+//    UserDetailsService : 해당 인터페이스는 사용자 입력 정보를 바탕으로UserDetails 객체를 생성하는 역할을 함
+//    해당 인터페이스를 상속받고 구현 시 인증 정보를 받을 수 있음
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Member member = memberRepository.findByEmail(email);
+
+        if (member == null) {
+            throw new UsernameNotFoundException(email);
+        }
+
+//        usernmae : 스프링 시큐리티에서 사용하는 사용자ID
+//        password : 스프링 시큐리티에서 사용하는 비밀번호
+//        roles : 스프링 시큐리티에서 사용하는 사용자 등급
+        return User.builder()
+                .username(member.getEmail())
+                .password(member.getPassword())
+                .roles(member.getRole().toString())
+                .build();
     }
 }

@@ -37,7 +37,8 @@ public class Member {
         member.setEmail(memberFromDto.getEmail());
         member.setAddress(memberFromDto.getAddress());
 //        생성된 멤버의 등급을 설정
-        member.setRole(Role.USER);
+//        member.setRole(Role.USER);
+        member.setRole(Role.ADMIN);
 
 //        비밀번호를 암호화
         String password = passwordEncoder.encode(memberFromDto.getPassword());

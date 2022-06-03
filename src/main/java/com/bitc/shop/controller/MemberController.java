@@ -52,4 +52,16 @@ public class MemberController {
         return "redirect:/";
     }
 
+    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    public String loginMember() {
+        return "/member/memberLoginForm";
+    }
+
+    @RequestMapping(value = "/login/error", method = RequestMethod.GET)
+    public String loginError(Model model) {
+        model.addAttribute("loginErrorMsg", "아이디 또는 비밀번호를 확인해주세요");
+        return "/member/memberLoginForm";
+    }
+
+
 }
