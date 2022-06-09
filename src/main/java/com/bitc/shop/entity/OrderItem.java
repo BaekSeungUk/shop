@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "order_item")
 @Data
-public class OrderItem {
+public class OrderItem extends BaseEntity {
 
     @Id
     @Column(name = "order_item_id")
@@ -27,7 +27,7 @@ public class OrderItem {
 
     private int count;
 
-    private LocalDateTime regTime;
+/*    private LocalDateTime regTime;
 
-    private LocalDateTime updateTime;
+    private LocalDateTime updateTime;*/
 }

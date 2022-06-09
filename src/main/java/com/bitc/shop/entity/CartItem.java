@@ -7,7 +7,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "cart_item")
 @Data
-public class CartItem {
+public class CartItem extends BaseEntity {
     @Id
     @Column(name = "cart_item_id")
     @GeneratedValue(strategy = GenerationType.AUTO)
