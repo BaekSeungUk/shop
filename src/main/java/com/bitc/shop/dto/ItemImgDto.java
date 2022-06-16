@@ -8,6 +8,7 @@ import org.modelmapper.ModelMapper;
 public class ItemImgDto {
     private Long id;
     private String imgName;
+    private String imgUrl;
     private String oriImgName;
     private String repImgYn;
 

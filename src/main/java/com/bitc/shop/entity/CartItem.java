@@ -1,12 +1,15 @@
 package com.bitc.shop.entity;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "cart_item")
-@Data
+@Getter
+@Setter
 public class CartItem extends BaseEntity {
     @Id
     @Column(name = "cart_item_id")

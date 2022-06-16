@@ -3,6 +3,7 @@ package com.bitc.shop.service;
 import com.bitc.shop.dto.ItemFormDto;
 import com.bitc.shop.dto.ItemImgDto;
 import com.bitc.shop.dto.ItemSearchDto;
+import com.bitc.shop.dto.MainItemDto;
 import com.bitc.shop.entity.Item;
 import com.bitc.shop.entity.ItemImg;
 import com.bitc.shop.repository.ItemImgRepository;
@@ -94,5 +95,10 @@ public class ItemService {
     @Transactional(readOnly = true)
     public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
         return itemRepository.getAdminItemPage(itemSearchDto, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<MainItemDto> getMainItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
+        return itemRepository.getMainItemPage(itemSearchDto, pageable);
     }
 }

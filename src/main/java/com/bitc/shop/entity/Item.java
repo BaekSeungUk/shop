@@ -2,6 +2,7 @@ package com.bitc.shop.entity;
 
 import com.bitc.shop.constant.ItemSellStatus;
 import com.bitc.shop.dto.ItemFormDto;
+import com.bitc.shop.exception.OutOfStockException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -43,9 +44,17 @@ public class Item extends BaseEntity {
         this.itemDetail = itemFormDto.getItemDetail();
         this.itemSellStatus = itemFormDto.getItemSellStatus();
     }
-
     /* private LocalDateTime regTime;
 
     private LocalDateTime updateTime;*/
 
+    public void removeStock(int stockNumber) {
+        // 현재 재고량에서 - 판매할 재고량
+        int restStock = this.stockNumber - stockNumber;
+        // 현재 재고량이 판매할 재고량 보다 적을 경우 예외 발생
+        if (restStock < 0) {
+            throw new OutOfStockException("상품의 재고가 부족합니다. (현재 재고 수량 : " + this.stockNumber + ")");
+        }
+        this.stockNumber = restStock;
+    }
 }

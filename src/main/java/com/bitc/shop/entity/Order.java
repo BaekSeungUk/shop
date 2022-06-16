@@ -2,6 +2,8 @@ package com.bitc.shop.entity;
 
 import com.bitc.shop.constant.OrderStatus;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -10,7 +12,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "orders")
-@Data
+@Getter
+@Setter
 public class Order extends BaseEntity{
 
     @Id
@@ -33,4 +36,32 @@ public class Order extends BaseEntity{
     /*private LocalDateTime regTime;
 
     private LocalDateTime updateTime;*/
+
+    public void addOrderItem(OrderItem orderItem) {
+//        상품 정보를 주문 리스트에 저장
+        orderItems.add(orderItem);
+//        주문 상품에 주문 정보를 저장
+        orderItem.setOrder(this);
+    }
+
+    public static Order createOrder(Member member, List<OrderItem> orderItemList) {
+        Order order = new Order();
+        order.setMember(member); // 주문한 멤버 정보를 설정
+        // 주문 상품 목록을 설정
+        for (OrderItem orderItem : orderItemList) {
+            order.addOrderItem(orderItem);
+        }
+
+        order.setOrderStatus(OrderStatus.ORDER); // 주문 상태 설정
+        order.setOrderDate(LocalDateTime.now()); // 주문 시간 설정
+        return order;
+    }
+
+    public int getTotalPrice() {
+        int totalPrice = 0;
+        for (OrderItem orderItem : orderItems) {
+            totalPrice += orderItem.getTotalPrice();
+        }
+        return totalPrice;
+    }
 }
