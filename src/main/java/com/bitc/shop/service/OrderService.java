@@ -49,25 +49,25 @@ public class OrderService {
     }
 
 //
-    @Transactional(readOnly = true)
-    public Page<OrderHistDto> getOrderList(String email, Pageable pageable) {
-        List<Order> orders = orderRepository.findOrders(email, pageable);
-        Long totalCount = orderRepository.countOrder(email);
+@Transactional(readOnly = true)
+public Page<OrderHistDto> getOrderList(String email, Pageable pageable) {
+    List<Order> orders = orderRepository.findOrders(email, pageable);
+    Long totalCount = orderRepository.countOrder(email);
 
-        List<OrderHistDto> orderHistDtos = new ArrayList<>();
+    List<OrderHistDto> orderHisDtos = new ArrayList<>();
 
-        for (Order order : orders) {
-            OrderHistDto orderHistDto = new OrderHistDto(order);
-            List<OrderItem> orderItems = order.getOrderItems();
-            for (OrderItem orderItem : orderItems) {
-                ItemImg itemImg = itemImgRepository.findByIdAndRepImgYn(orderItem.getItem().getId(), "Y");
-                OrderItemDto orderItemDto = new OrderItemDto(orderItem, itemImg.getImgUrl());
-                orderHistDto.addOrderItemDto(orderItemDto);
-            }
-
-            orderHistDtos.add(orderHistDto);
+    for (Order order : orders) {
+        OrderHistDto orderHistDto = new OrderHistDto(order);
+        List<OrderItem> orderItems = order.getOrderItems();
+        for (OrderItem orderItem : orderItems) {
+            ItemImg itemImg = itemImgRepository.findByItemIdAndRepImgYn(orderItem.getItem().getId(), "Y");
+            OrderItemDto orderItemDto = new OrderItemDto(orderItem, itemImg.getImgUrl());
+            orderHistDto.addOrderItemDto(orderItemDto);
         }
 
-        return new PageImpl<OrderHistDto>(orderHistDtos, pageable, totalCount);
+        orderHisDtos.add(orderHistDto);
     }
+
+    return new PageImpl<OrderHistDto>(orderHisDtos, pageable, totalCount);
+}
 }
