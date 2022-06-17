@@ -1,15 +1,13 @@
 package com.bitc.shop.service;
 
 import com.bitc.shop.constant.ItemSellStatus;
-import com.bitc.shop.constant.OrderStatus;
-import com.bitc.shop.dto.OrderDto;
+import com.bitc.shop.dto.CartItemDto;
+import com.bitc.shop.entity.CartItem;
 import com.bitc.shop.entity.Item;
 import com.bitc.shop.entity.Member;
-import com.bitc.shop.entity.Order;
-import com.bitc.shop.entity.OrderItem;
+import com.bitc.shop.repository.CartItemRepository;
 import com.bitc.shop.repository.ItemRepository;
 import com.bitc.shop.repository.MemberRepository;
-import com.bitc.shop.repository.OrderRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,25 +16,25 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @Transactional
 @TestPropertySource(locations = "classpath:application-test.properties")
-public class OrderServiceTest {
-    @Autowired
-    private OrderService orderService;
-    
-    @Autowired
-    private OrderRepository orderRepository;
-    
+public class CartServiceTest {
+
     @Autowired
     ItemRepository itemRepository;
-    
+
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    CartService cartService;
+
+    @Autowired
+    CartItemRepository cartItemRepository;
 
     public Item saveItem() {
         Item item = new Item();
@@ -57,42 +55,21 @@ public class OrderServiceTest {
     }
 
     @Test
-    @DisplayName("주문 테스트")
-    public void order() {
+    @DisplayName("장바구니 담기 테스트")
+    public void addCart() {
         Item item = saveItem();
         Member member = saveMember();
 
-        OrderDto orderDto = new OrderDto();
-        orderDto.setCount(10);
-        orderDto.setItemId(item.getId());
+        CartItemDto cartItemDto = new CartItemDto();
+        cartItemDto.setCount(5);
+        cartItemDto.setItemId(item.getId());
 
-        Long orderId = orderService.order(orderDto, member.getEmail());
+        Long cartItemId = cartService.addCart(cartItemDto, member.getEmail());
 
-        Order order = orderRepository.findById(orderId)
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(EntityNotFoundException::new);
 
-        List<OrderItem> orderItems = order.getOrderItems();
-        int totalPrice = orderDto.getCount() * item.getPrice();
-
-        assertEquals(totalPrice, order.getTotalPrice());
-    }
-
-    @Test
-    @DisplayName("주문 취소 테스트")
-    public void cancelOrder() {
-        Item item = saveItem();
-        Member member = saveMember();
-
-        OrderDto orderDto = new OrderDto();
-        orderDto.setCount(10);
-        orderDto.setItemId(item.getId());
-        Long orderId = orderService.order(orderDto, member.getEmail());
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(EntityNotFoundException::new);
-        orderService.cancelOrder(orderId);
-
-        assertEquals(OrderStatus.CANCEL, order.getOrderStatus());
-        assertEquals(100,item.getStockNumber());
+        assertEquals(item.getId(), cartItem.getItem().getId());
+        assertEquals(cartItemDto.getCount(), cartItem.getCount());
     }
 }

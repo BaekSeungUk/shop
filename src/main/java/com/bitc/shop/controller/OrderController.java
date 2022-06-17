@@ -70,4 +70,17 @@ public class OrderController {
 
         return "order/orderHist";
     }
+
+    @ResponseBody
+    @RequestMapping(value = "/order/{orderId}/cancel", method = RequestMethod.POST)
+    public ResponseEntity cancelOrder(@PathVariable("orderId") Long orderId, Principal principal) {
+//        현재 사용자 정보 및 주문id를 기준으로 주문자와 현재 사용자가 같은지 확인
+        if (!orderService.validateOrder(orderId, principal.getName())) {
+            return new ResponseEntity<String>("주문 취소 권한이 없습니다.",HttpStatus.FORBIDDEN);
+        }
+
+//        주문 취소
+        orderService.cancelOrder(orderId);
+        return new ResponseEntity<Long>(orderId, HttpStatus.OK);
+    }
 }

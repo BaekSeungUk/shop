@@ -14,6 +14,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.ArrayList;
@@ -48,26 +49,51 @@ public class OrderService {
         return order.getId();
     }
 
-//
-@Transactional(readOnly = true)
-public Page<OrderHistDto> getOrderList(String email, Pageable pageable) {
-    List<Order> orders = orderRepository.findOrders(email, pageable);
-    Long totalCount = orderRepository.countOrder(email);
+    //
+    @Transactional(readOnly = true)
+    public Page<OrderHistDto> getOrderList(String email, Pageable pageable) {
+        List<Order> orders = orderRepository.findOrders(email, pageable);
+        Long totalCount = orderRepository.countOrder(email);
 
-    List<OrderHistDto> orderHisDtos = new ArrayList<>();
+        List<OrderHistDto> orderHisDtos = new ArrayList<>();
 
-    for (Order order : orders) {
-        OrderHistDto orderHistDto = new OrderHistDto(order);
-        List<OrderItem> orderItems = order.getOrderItems();
-        for (OrderItem orderItem : orderItems) {
-            ItemImg itemImg = itemImgRepository.findByItemIdAndRepImgYn(orderItem.getItem().getId(), "Y");
-            OrderItemDto orderItemDto = new OrderItemDto(orderItem, itemImg.getImgUrl());
-            orderHistDto.addOrderItemDto(orderItemDto);
+        for (Order order : orders) {
+            OrderHistDto orderHistDto = new OrderHistDto(order);
+            List<OrderItem> orderItems = order.getOrderItems();
+            for (OrderItem orderItem : orderItems) {
+                ItemImg itemImg = itemImgRepository.findByItemIdAndRepImgYn(orderItem.getItem().getId(), "Y");
+                OrderItemDto orderItemDto = new OrderItemDto(orderItem, itemImg.getImgUrl());
+                orderHistDto.addOrderItemDto(orderItemDto);
+            }
+
+            orderHisDtos.add(orderHistDto);
         }
 
-        orderHisDtos.add(orderHistDto);
+        return new PageImpl<OrderHistDto>(orderHisDtos, pageable, totalCount);
     }
 
-    return new PageImpl<OrderHistDto>(orderHisDtos, pageable, totalCount);
-}
+//    현재 사용자와 주문자가 같은지 확인
+    @Transactional(readOnly = true)
+    public boolean validateOrder(Long orderId, String email) {
+//        현재 사용자 정보를 email을 통해서 가져옴
+        Member curMember = memberRepository.findByEmail(email);
+//        주문id를 통해서 주문 정보를 가져옴
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(EntityNotFoundException::new);
+//        주문 정보에 포함된 사용자 정보를 가져옴
+        Member savedMember = order.getMember();
+
+//        현재 사용자 정보와 주문 정보에 포함된 사용자 정보가 같은지 확인
+        if (!StringUtils.equals(curMember.getEmail(), savedMember.getEmail())) {
+            return false;
+        }
+        return  true;
+    }
+
+//    실제 주문 취소 시작 부분
+    public  void cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(EntityNotFoundException::new);
+        order.cancelOrder();
+    }
 }

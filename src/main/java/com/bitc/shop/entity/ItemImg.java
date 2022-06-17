@@ -1,6 +1,5 @@
 package com.bitc.shop.entity;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
